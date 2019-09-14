@@ -126,6 +126,9 @@ class AlgoStrategy(gamelib.AlgoCore):
             build_location = [location[0], location[1] + 1]
             game_state.attempt_spawn(DESTRUCTOR, build_location)
 
+
+
+
     def stall_with_scramblers(self, game_state):
         """
         Send out Scramblers at random locations to defend our base from enemy moving units.
@@ -189,8 +192,21 @@ class AlgoStrategy(gamelib.AlgoCore):
                                                                                              game_state.config).damage
             damages.append(damage)
 
-        # Now just return the location that takes the least damage
-        return location_options[damages.index(min(damages))]
+        # Add encryption
+        boosts = []
+        # Get the encrytion from our side each path will take
+        for location in location_options:
+            path = game_state.find_path_to_edge(location)
+            boost = 0
+            for path_location in path:
+                # Get number of enemy destructors that can attack the final location and multiply by destructor damage
+                boost += len(game_state.get_attackers(path_location, 1)) * gamelib.GameUnit(ENCRYPTER,
+                                                                                             game_state.config).damage
+            boosts.append(boost)
+
+        total = boosts - damages
+        # Now just return the location that takes the least damage and the largest boost
+        return location_options[total.index(max(total))]
 
     def detect_enemy_unit(self, game_state, unit_type=None, valid_x=None, valid_y=None):
         total_units = 0
