@@ -76,9 +76,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         else:
             # On turn 3, check which direction to funnel towards, and commit to it
             if game_state.turn_number == 3:
-                ping_spawn_location_options = [[11, 2], [16, 2]]
+                ping_spawn_location_options = [[3, 10], [24, 10]]
                 self.best_location = self.least_damage_spawn_location(game_state, ping_spawn_location_options)
-                if self.best_location == [11, 3]:
+                if self.best_location == [2, 11]:
                     self.build_left_funnel(game_state)
                     self.funnel_left = True
                 else:
@@ -86,7 +86,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                     self.funnel_left = False
 
             # On all turns after turn 3..
-            else:
+            elif game_state.turn_number > 3:
                 # Keep committing to the funnel...
                 if self.funnel_left:
                     self.build_left_funnel(game_state)
@@ -94,7 +94,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                     self.build_right_funnel(game_state)
 
                 # And swarm down the funnel with units if we have enough bits
-                if game_state.get_resource(game_state.BITS) >= 7:
+                if game_state.get_resource(game_state.BITS) >= 10:
                     game_state.attempt_spawn(PING, self.best_location, 1000)
 
 
@@ -107,24 +107,10 @@ class AlgoStrategy(gamelib.AlgoCore):
         # More community tools available at: https://terminal.c1games.com/rules#Download
 
         # Place initial units
-        destructor_locations = [[1, 13], [2, 13], [25, 13], [26, 13],
-                                [4, 12], [23, 12],
-                                [6, 11], [21, 11],
-                                [8, 10], [19, 10],
-                                [10, 9], [17, 9]]
-
-        encryptor_locations = [[3, 12], [24, 12],
-                               [5, 11], [22, 11],
-                               [7, 10], [20, 10],
-                               [9, 9], [18, 9],
-                               [10, 8], [17, 8]]
-
-        filter_locations = [[0, 13], [27, 13]]
+        destructor_locations = [[x, 13] for x in range(28) if x not in [3, 6, 10, 12, 15, 17, 21, 24]]
 
         # attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
         game_state.attempt_spawn(DESTRUCTOR, destructor_locations)
-        game_state.attempt_spawn(FILTER, filter_locations)
-        game_state.attempt_spawn(ENCRYPTOR, encryptor_locations)
 
     def build_reactive_defense(self, game_state):
         """
@@ -137,31 +123,27 @@ class AlgoStrategy(gamelib.AlgoCore):
             build_location = [location[0], location[1] + 1]
             game_state.attempt_spawn(DESTRUCTOR, build_location)
 
-    def build_left_funnel(self, game_state):
-        enc_locations =[[10, 7], [13, 7], [11, 6], [14, 6], [12, 5], [15, 5], [13, 4], [16, 4], [14, 3], [17, 3],
-                        [15, 2]]
+    def build_right_funnel(self, game_state):
+        enc_locations =[[3, 11], [4, 11], [5, 10], [6, 9], [7, 8], [8,7], [9, 6], [10, 5], [11, 4],
+                        [12, 3], [13, 2], [14, 2], [15, 3], [16, 4], [17, 5], [18, 6], [19, 7],
+                        [20, 8]]
         game_state.attempt_spawn(ENCRYPTOR, enc_locations)
 
-    def build_right_funnel(self, game_state):
-        enc_locations = [[14, 7], [17, 7], [13, 6], [16, 6], [12, 5], [15, 5], [11, 4], [14, 4], [10, 3], [13, 3],
-                         [12, 3]]
+    def build_left_funnel(self, game_state):
+        enc_locations = [[24, 11], [23, 11], [22, 10], [21, 9], [20, 8], [19, 7], [18, 6], [17, 5],
+                         [16, 4], [15, 3], [14, 2], [12, 3], [11, 4], [10, 5], [9, 6], [8, 7], [7, 8]]
         game_state.attempt_spawn(ENCRYPTOR, enc_locations)
 
     def stall_with_scramblers(self, game_state):
         """
         Send out Scramblers at random locations to defend our base from enemy moving units.
         """
-        # We can spawn moving units on our edges so a list of all our edge locations
-        friendly_edges = game_state.game_map.get_edge_locations(
-            game_state.game_map.BOTTOM_LEFT) + game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_RIGHT)
+        deploy_locations = [[9, 4], [18, 4]]
 
-        # Remove locations that are blocked by our own firewalls 
-        # since we can't deploy units there.
-        deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
-
-        # Randomly spawn up to two scramblers
+        # Randomly spawn up to quarter scramblers
         count = 0
-        while count < 2 and len(deploy_locations) > 0:
+        quarter = game_state.get_resource(game_state.BITS) // 4 + 1
+        while count < quarter and len(deploy_locations) > 0:
             # Choose a random deploy location.
             deploy_index = random.randint(0, len(deploy_locations) - 1)
             deploy_location = deploy_locations[deploy_index]
