@@ -41,6 +41,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         SCRAMBLER = config["unitInformation"][5]["shorthand"]
         # This is a good place to do initial setup
         self.scored_on_locations = []
+        self.funnel_left = True
 
     def on_turn(self, turn_state):
         """
@@ -69,23 +70,33 @@ class AlgoStrategy(gamelib.AlgoCore):
         # Now build reactive defenses based on where the enemy scored
         self.build_reactive_defense(game_state)
 
-        # If the turn is less than 5, stall with Scramblers and wait to see enemy's base
+        # If the turn is less than 3, stall with Scramblers and wait to see enemy's base
         if game_state.turn_number < 3:
             self.stall_with_scramblers(game_state)
         else:
-            if self.detect_enemy_unit(game_state, unit_type=None, valid_x=None, valid_y=[14, 15]) > 10:
-                self.emp_line_strategy(game_state)
-            else:
-                # Only spawn Ping's every other turn
-                # Sending more at once is better since attacks can only hit a single ping at a time
-                if game_state.turn_number % 2 == 1:
-                    ping_spawn_location_options = [[13, 0], [14, 0]]
-                    best_location = self.least_damage_spawn_location(game_state, ping_spawn_location_options)
-                    game_state.attempt_spawn(PING, best_location, 1000)
+            # On turn 3, check which direction to funnel towards, and commit to it
+            if game_state.turn_number == 3:
+                ping_spawn_location_options = [[11, 2], [16, 2]]
+                self.best_location = self.least_damage_spawn_location(game_state, ping_spawn_location_options)
+                if self.best_location == [11, 3]:
+                    self.build_left_funnel(game_state)
+                    self.funnel_left = True
+                else:
+                    self.build_right_funnel(game_state)
+                    self.funnel_left = False
 
-                # Lastly, if we have spare cores, let's build some Encryptors to boost our Pings' health.
-                encryptor_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
-                game_state.attempt_spawn(ENCRYPTOR, encryptor_locations)
+            # On all turns after turn 3..
+            else:
+                # Keep committing to the funnel...
+                if self.funnel_left:
+                    self.build_left_funnel(game_state)
+                else:
+                    self.build_right_funnel(game_state)
+
+                # And swarm down the funnel with units if we have enough bits
+                if game_state.get_resource(game_state.BITS) >= 7:
+                    game_state.attempt_spawn(PING, self.best_location, 1000)
+
 
     def build_defenses(self, game_state):
         """
@@ -126,6 +137,16 @@ class AlgoStrategy(gamelib.AlgoCore):
             build_location = [location[0], location[1] + 1]
             game_state.attempt_spawn(DESTRUCTOR, build_location)
 
+    def build_left_funnel(self, game_state):
+        enc_locations =[[10, 7], [13, 7], [11, 6], [14, 6], [12, 5], [15, 5], [13, 4], [16, 4], [14, 3], [17, 3],
+                        [15, 2]]
+        game_state.attempt_spawn(ENCRYPTOR, enc_locations)
+
+    def build_right_funnel(self, game_state):
+        enc_locations = [[14, 7], [17, 7], [13, 6], [16, 6], [12, 5], [15, 5], [11, 4], [14, 4], [10, 3], [13, 3],
+                         [12, 3]]
+        game_state.attempt_spawn(ENCRYPTOR, enc_locations)
+
     def stall_with_scramblers(self, game_state):
         """
         Send out Scramblers at random locations to defend our base from enemy moving units.
@@ -138,13 +159,15 @@ class AlgoStrategy(gamelib.AlgoCore):
         # since we can't deploy units there.
         deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
 
-        # While we have remaining bits to spend lets send out scramblers randomly.
-        while game_state.get_resource(game_state.BITS) >= game_state.type_cost(SCRAMBLER) and len(deploy_locations) > 0:
+        # Randomly spawn up to two scramblers
+        count = 0
+        while count < 2 and len(deploy_locations) > 0:
             # Choose a random deploy location.
             deploy_index = random.randint(0, len(deploy_locations) - 1)
             deploy_location = deploy_locations[deploy_index]
 
             game_state.attempt_spawn(SCRAMBLER, deploy_location)
+            count += 1
             """
             We don't have to remove the location since multiple information 
             units can occupy the same space.
