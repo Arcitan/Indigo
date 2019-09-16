@@ -93,6 +93,12 @@ class AlgoStrategy(gamelib.AlgoCore):
                 else:
                     self.build_right_funnel(game_state)
 
+                # Fortify defenses w/ our additional cores
+                self.build_additional_defenses(game_state)
+                self.build_better_tunnel(game_state)
+                self.build_defenses3(game_state)
+                # self.build_center(game_state)
+
                 # And swarm down the funnel with units if we have enough bits
                 if game_state.get_resource(game_state.BITS) >= 10:
                     game_state.attempt_spawn(PING, self.best_location, 1000)
@@ -120,8 +126,62 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         for location in self.scored_on_locations:
             # Build destructor one space above so that it doesn't block our own edge spawn locations
-            build_location = [location[0], location[1] + 1]
+            build_location = [location[0], location[1] + 3]
             game_state.attempt_spawn(DESTRUCTOR, build_location)
+
+    def build_additional_defenses(self, game_state):
+        destructor_locations = []
+        for i in range(1, 27):
+            if i not in [3, 6, 10, 12, 15, 17, 21, 24]:
+                destructor_locations.extend([[i, 12], [27-i, 12]])
+        game_state.attempt_spawn(DESTRUCTOR, destructor_locations)
+
+    def build_better_tunnel(self, game_state):
+        el = [[5, 11], [6, 10], [7, 9], [8, 8], [9, 7], [10, 6], [11, 5], [12, 4],
+              [14, 3], [15, 4], [16, 5], [17, 6], [18, 7], [19, 8]]
+
+        game_state.attempt_spawn(ENCRYPTOR, el)
+
+    def build_defenses3(self, game_state):
+        destructor_locations = []
+        for i in range(2, 26):
+            if i not in [3, 6, 10, 12, 15, 17, 21, 24]:
+                destructor_locations.extend([[i, 11], [27-i, 11]])
+        game_state.attempt_spawn(DESTRUCTOR, destructor_locations)
+
+
+    def build_additional_defenses(self, game_state):
+        destructor_locations = []
+        for i in range(1, 13):
+            if i not in [3, 6, 10, 12, 15, 17, 21, 24]:
+                destructor_locations.extend([[i, 12], [27-i, 12]])
+        game_state.attempt_spawn(DESTRUCTOR, destructor_locations)
+
+
+
+
+    def emp_line_strategy(self, game_state):
+        """
+        Build a line of the cheapest stationary unit so our EMP's can attack from long range.
+        """
+        # First let's figure out the cheapest unit
+        # We could just check the game rules, but this demonstrates how to use the GameUnit class
+        stationary_units = [FILTER, DESTRUCTOR, ENCRYPTOR]
+        cheapest_unit = FILTER
+        for unit in stationary_units:
+            unit_class = gamelib.GameUnit(unit, game_state.config)
+            if unit_class.cost < gamelib.GameUnit(cheapest_unit, game_state.config).cost:
+                cheapest_unit = unit
+
+        # Now let's build out a line of stationary units. This will prevent our EMPs from running into the enemy base.
+        # Instead they will stay at the perfect distance to attack the front two rows of the enemy base.
+        for x in range(27, 5, -1):
+            game_state.attempt_spawn(cheapest_unit, [x, 11])
+
+        # Now spawn EMPs next to the line
+        # By asking attempt_spawn to spawn 1000 units, it will essentially spawn as many as we have resources for
+        game_state.attempt_spawn(EMP, [24, 10], 2)
+
 
     def build_right_funnel(self, game_state):
         enc_locations =[[3, 11], [4, 11], [5, 10], [6, 9], [7, 8], [8,7], [9, 6], [10, 5], [11, 4],
