@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="8088c36e-ef74-46be-8f94-3dedb6908ba5" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-15-35-31-1568493331577--2089098218.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-15-36-44-1568493404151--229274476.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-16-24-10-1568496250728-571432825.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-16-24-47-1568496287617-275654726.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-16-28-37-1568496517601-1132044271.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-16-35-45-1568496945189--1670518776.replay" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/replays/p1-14-09-2019-16-37-48-1568497068206--601464775.replay" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/indigo-algo/algo_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/indigo-algo/algo_strategy.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1QpwfWfxZjiMZJGVxGK2vRmVMtt" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8088c36e-ef74-46be-8f94-3dedb6908ba5" name="Default Changelist" comment="" />
+      <created>1568480948913</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1568480948913</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>
